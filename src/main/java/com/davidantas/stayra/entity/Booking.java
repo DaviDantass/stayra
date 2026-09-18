@@ -67,4 +67,22 @@ public class Booking {
 
     @Column(name = "cancelled_at")
     private OffsetDateTime cancelledAt;
+
+    // this class (OffsetDateTime) is immutable and thread-safe
+    @Column(name = "expires_at")
+    private OffsetDateTime expiresAt;
+
+    public boolean expireIfOverdue(OffsetDateTime now) {
+        if (status != BookingStatus.PENDING) {
+            return false;
+        }
+        if (expiresAt == null) {
+            throw new IllegalStateException("Reserva pendente deve ter prazo de expiração\"");
+        }
+        if (now.isBefore(expiresAt)) {
+            return false;
+        }
+        this.status = BookingStatus.EXPIRED;
+        return true;
+    }
 }
